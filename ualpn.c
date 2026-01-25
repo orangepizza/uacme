@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2024 Nicola Di Lieto <nicola.dilieto@gmail.com>
+ * Copyright (C) 2019-2026 Nicola Di Lieto <nicola.dilieto@gmail.com>
  *
  * This file is part of uacme.
  *
@@ -3972,7 +3972,7 @@ void usage(void)
 void version(void)
 {
     fprintf(stderr, "%s: version " PACKAGE_VERSION "\n"
-            "Copyright (C) 2019-2024 Nicola Di Lieto\n\n"
+            "Copyright (C) 2019-2026 Nicola Di Lieto\n\n"
             "%s is free software: you can redistribute and/or modify\n"
             "it under the terms of the GNU General Public License as\n"
             "published by the Free Software Foundation, either version 3\n"
