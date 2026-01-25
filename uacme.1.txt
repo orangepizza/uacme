@@ -96,7 +96,8 @@ OPTIONS
            *done*:::: is called upon successful completion of an
            accepted challenge.
            *failed*:::: is called upon failure of an accepted challenge.
-        'TYPE'::: challenge type (*dns-01*, *http-01* or *tls-alpn-01*)
+        'TYPE'::: challenge type (*dns-01*, *dns-persist-01*, *http-01*
+                  or *tls-alpn-01*)
         'IDENT'::: The identifier the challenge refers to
         'TOKEN'::: The challenge token
         'AUTH'::: The key authorization (for *dns-01* and *tls-alpn-01*

@@ -907,19 +907,49 @@ bool authorize(acme_t *a)
                 const char *token = json_find_string(
                         chlgs->v.array.values+j, "token");
                 char *key_auth = NULL;
-                if (!type || !url || !token) {
+                if (!type || !url) {
                     warnx("failed to parse challenge");
                     goto out;
                 }
-                for (const char *t = token; *t; t++)
-                    if (!isalnum(*t) && *t != '-' && *t != '_') {
-                        warnx("failed to validate token");
+                if (strcmp(type, "dns-persist-01") == 0) {
+                    const json_value_t *idns = json_find(
+                            chlgs->v.array.values+j, "issuer-domain-names");
+                    if (!idns || idns->type != JSON_ARRAY ||
+                            idns->v.array.size < 1 ||
+                            idns->v.array.size > 10 ||
+                            idns->v.array.values[0].type != JSON_STRING ||
+                            idns->v.array.values[0].v.value == NULL ||
+                            strlen(idns->v.array.values[0].v.value) > 253 ||
+                            strlen(idns->v.array.values[0].v.value) == 0) {
+                        warnx("failed to parse challenge");
                         goto out;
                     }
+                    token = idns->v.array.values[0].v.value;
+                    for (const char *t = token; *t; t++)
+                        if ((!isascii(*t) || !isalnum(*t) || !islower(*t)) &&
+                                    *t != '-' && *t != '.') {
+                            warnx("failed to validate issuer domain name");
+                            goto out;
+                        }
+                } else {
+                    if (!token) {
+                        warnx("failed to parse challenge");
+                        goto out;
+                    }
+                    for (const char *t = token; *t; t++)
+                        if (!isalnum(*t) && *t != '-' && *t != '_') {
+                            warnx("failed to validate token");
+                            goto out;
+                        }
+                }
                 if (strcmp(type, "dns-01") == 0 ||
                         strcmp(type, "tls-alpn-01") == 0)
                     key_auth = sha2_base64url(256, "%s.%s", token, thumbprint);
-                else if (asprintf(&key_auth, "%s.%s", token, thumbprint) < 0)
+                else if (strcmp(type, "dns-persist-01") == 0) {
+                    if (asprintf(&key_auth, "\"%s; accounturi=%s\"", token,
+                                a->kid) < 0)
+                        key_auth = NULL;
+                } else if (asprintf(&key_auth, "%s.%s", token, thumbprint) < 0)
                     key_auth = NULL;
                 if (!key_auth) {
                     warnx("failed to generate authorization key");
